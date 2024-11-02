@@ -54,7 +54,6 @@ func startRouter(cfg config.Config) {
 	router.HandleFunc("GET /api/teachers", Teacher.GetTeacher())
 	router.HandleFunc("POST /api/create-teachers", Teacher.AddTeacher(storage))
 
-	slog.Info("Server Listening on %s 🔥", slog.String("Address: ", cfg.HttpServer.Addr))
 	server := http.Server{
 		Addr:    cfg.Addr,
 		Handler: router,

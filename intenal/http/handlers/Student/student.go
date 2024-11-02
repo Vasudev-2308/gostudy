@@ -22,7 +22,7 @@ func GetStudents() http.HandlerFunc {
 
 func AddStudent(database storage.Database) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		var newStudent types.Student
+		var newStudent types.User
 
 		error := json.NewDecoder(request.Body).Decode(&newStudent)
 
@@ -35,12 +35,13 @@ func AddStudent(database storage.Database) http.HandlerFunc {
 			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(error))
 			return
 		}
-		Validator.StudentValidator(&newStudent, response)
+		Validator.UserValidator(&newStudent, response)
 
 		id, err := database.CreateStudent(
 			newStudent.Name,
 			newStudent.Email,
-			newStudent.Age)
+			newStudent.Age,
+			newStudent.Subject)
 
 		slog.Info("User Created", slog.String("id : %s", string(id)))
 		if err != nil {

@@ -22,7 +22,8 @@ func New(cfg *config.Config) (*Sqlite, error) {
 			ID INTEGER PRIMARY KEY AUTOINCREMENT, 
 			NAME TEXT, 
 			AGE INTEGER, 
-			EMAIL TEXT
+			EMAIL TEXT, 
+			SUBJECT TEXT
 		)
 	`)
 
@@ -50,17 +51,17 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 }
 
-func (db *Sqlite) CreateStudent(name string, email string, age int) (int64, error) {
+func (db *Sqlite) CreateStudent(name string, email string, age int, subject string) (int64, error) {
 
 	query, err := db.Db.Prepare(
-		"INSERT INTO STUDENTS (name, email, age) VALUES (?, ?, ?)")
+		"INSERT INTO STUDENTS (name, email, age, subject) VALUES (?, ?, ?, ?)")
 
 	if err != nil {
 		return 0, err
 	}
 
 	defer query.Close()
-	rslt, err := query.Exec(name, email, age)
+	rslt, err := query.Exec(name, email, age, subject)
 
 	if err != nil {
 		return 0, err
@@ -76,14 +77,14 @@ func (db *Sqlite) CreateStudent(name string, email string, age int) (int64, erro
 
 func (db *Sqlite) CreateTeacher(name string, email string, age int, subject string) (int64, error) {
 	query, err := db.Db.Prepare(
-		"INSERT INTO TEACHERS (name, email, subject, age) VALUES (?, ?, ?, ?)")
+		"INSERT INTO TEACHERS (name, email, age, subject) VALUES (?, ?, ?, ?)")
 
 	if err != nil {
 		return 0, err
 	}
 
 	defer query.Close()
-	rslt, err := query.Exec(name, email, subject, age)
+	rslt, err := query.Exec(name, email, age, subject)
 
 	if err != nil {
 		return 0, err

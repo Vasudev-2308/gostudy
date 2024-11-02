@@ -22,7 +22,7 @@ func GetTeacher() http.HandlerFunc {
 
 func AddTeacher(database storage.Database) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		var newTeacher types.Teacher
+		var newTeacher types.User
 		error := json.NewDecoder(request.Body).Decode(&newTeacher)
 		if errors.Is(error, io.EOF) {
 			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(fmt.Errorf("empty body")))
@@ -34,7 +34,7 @@ func AddTeacher(database storage.Database) http.HandlerFunc {
 			return
 		}
 
-		Validator.TeacherValidator(&newTeacher, response)
+		Validator.UserValidator(&newTeacher, response)
 
 		id, err := database.CreateTeacher(
 			newTeacher.Name,
