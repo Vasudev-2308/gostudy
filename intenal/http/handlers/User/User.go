@@ -1,4 +1,4 @@
-package Student
+package User
 
 import (
 	"encoding/json"
@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	Validator "github.com/Vasudev-2308/gostudy/intenal/http/validator"
 	"github.com/Vasudev-2308/gostudy/intenal/storage"
@@ -14,13 +15,32 @@ import (
 	response_util "github.com/Vasudev-2308/gostudy/intenal/utils/response_util"
 )
 
-func GetStudents() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello Student"))
+func GetUser(database storage.Database, table string) http.HandlerFunc {
+	table = strings.ToUpper(table)
+	return func(response http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
+		slog.Info(id)
+		if table == "STUDENT" {
+			slog.Info("Getting a Student")
+			user, err := database.GetUserDetail(table, 2)
+			if err != nil {
+				slog.Info(err.Error())
+			}
+			fmt.Println(user)
+		}
+		if table == "TEACHER" {
+			slog.Info("Getting a Student")
+			user, err := database.GetUserDetail(table, 2)
+			if err != nil {
+				slog.Info(err.Error())
+			}
+			fmt.Println(user)
+		}
 	}
 }
 
-func AddStudent(database storage.Database) http.HandlerFunc {
+func AddUser(database storage.Database, tableName string) http.HandlerFunc {
+	tableName = strings.ToUpper(tableName)
 	return func(response http.ResponseWriter, request *http.Request) {
 		var newStudent types.User
 
@@ -37,11 +57,12 @@ func AddStudent(database storage.Database) http.HandlerFunc {
 		}
 		Validator.UserValidator(&newStudent, response)
 
-		id, err := database.CreateStudent(
+		id, err := database.CreateUser(
 			newStudent.Name,
 			newStudent.Email,
 			newStudent.Age,
-			newStudent.Subject)
+			newStudent.Subject,
+			tableName)
 
 		slog.Info("User Created", slog.String("id : %s", string(id)))
 		if err != nil {

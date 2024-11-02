@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Vasudev-2308/gostudy/intenal/config"
+	"github.com/Vasudev-2308/gostudy/intenal/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -11,7 +13,7 @@ type Sqlite struct {
 	Db *sql.DB
 }
 
-func New(cfg *config.Config) (*Sqlite, error) {
+func NewStudent(cfg *config.Config) (*Sqlite, error) {
 	dbInstance, err := sql.Open("sqlite3", cfg.StoragePath)
 	if err != nil {
 		return nil, err
@@ -27,6 +29,18 @@ func New(cfg *config.Config) (*Sqlite, error) {
 		)
 	`)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return &Sqlite{
+		Db: dbInstance,
+	}, nil
+
+}
+
+func NewTeacher(cfg *config.Config) (*Sqlite, error) {
+	dbInstance, err := sql.Open("sqlite3", cfg.StoragePath)
 	if err != nil {
 		return nil, err
 	}
@@ -51,10 +65,11 @@ func New(cfg *config.Config) (*Sqlite, error) {
 
 }
 
-func (db *Sqlite) CreateStudent(name string, email string, age int, subject string) (int64, error) {
+func (db *Sqlite) CreateUser(name string, email string, age int, subject string, tableName string) (int64, error) {
 
+	queryString := fmt.Sprintf("INSERT INTO %s (name, email, age, subject) VALUES (?, ?, ?, ?)", tableName)
 	query, err := db.Db.Prepare(
-		"INSERT INTO STUDENTS (name, email, age, subject) VALUES (?, ?, ?, ?)")
+		queryString)
 
 	if err != nil {
 		return 0, err
@@ -75,25 +90,9 @@ func (db *Sqlite) CreateStudent(name string, email string, age int, subject stri
 	return id, nil
 }
 
-func (db *Sqlite) CreateTeacher(name string, email string, age int, subject string) (int64, error) {
-	query, err := db.Db.Prepare(
-		"INSERT INTO TEACHERS (name, email, age, subject) VALUES (?, ?, ?, ?)")
+func (db *Sqlite) GetUserDetail(tableName string, id int64) (types.User, error) {
 
-	if err != nil {
-		return 0, err
-	}
+	stud := types.User{}
+	return stud, nil
 
-	defer query.Close()
-	rslt, err := query.Exec(name, email, age, subject)
-
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := rslt.LastInsertId()
-	if err != nil {
-		return 0, nil
-	}
-
-	return id, nil
 }

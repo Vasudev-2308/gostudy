@@ -9,8 +9,7 @@ import (
 	"syscall"
 
 	"github.com/Vasudev-2308/gostudy/intenal/config"
-	Student "github.com/Vasudev-2308/gostudy/intenal/http/handlers/Student"
-	"github.com/Vasudev-2308/gostudy/intenal/http/handlers/Teacher"
+	"github.com/Vasudev-2308/gostudy/intenal/http/handlers/User"
 	"github.com/Vasudev-2308/gostudy/intenal/storage/sqlite"
 )
 
@@ -42,17 +41,19 @@ func startServer(server *http.Server, doneChannel chan os.Signal) {
 func startRouter(cfg config.Config) {
 	// Setup Router
 	// Setup Database
-	storage, err := sqlite.New(&cfg)
+	student, err1 := sqlite.NewStudent(&cfg)
+	teacher, err2 := sqlite.NewTeacher(&cfg)
 
-	if err != nil {
-		slog.Info("Not able to Initiate DB", slog.String("%s", err.Error()))
+	if err1 != nil || err2 != nil {
+		slog.Info("Not able to Initiate DB", slog.String("%s", err1.Error()), slog.String("%s", err2.Error()))
 	}
+
 	slog.Info("Storage Initated", slog.String("env", cfg.StoragePath))
 	router := http.NewServeMux()
-	router.HandleFunc("GET /api/students", Student.GetStudents())
-	router.HandleFunc("POST /api/create-student", Student.AddStudent(storage))
-	router.HandleFunc("GET /api/teachers", Teacher.GetTeacher())
-	router.HandleFunc("POST /api/create-teachers", Teacher.AddTeacher(storage))
+	router.HandleFunc("GET /api/student/{id}", User.GetUser(student, "students"))
+	router.HandleFunc("POST /api/create-student", User.AddUser(student, "students"))
+	router.HandleFunc("GET /api/teachers", User.GetUser(teacher, "teachers"))
+	router.HandleFunc("POST /api/create-teachers", User.AddUser(teacher, "teachers"))
 
 	server := http.Server{
 		Addr:    cfg.Addr,

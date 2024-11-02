@@ -1,7 +1,8 @@
 package storage
 
-type Database interface {
+import "github.com/Vasudev-2308/gostudy/intenal/types"
 
-	CreateStudent(name string, email string, age int, subject string) (int64, error)
-	CreateTeacher(name string, email string, age int, subject string) (int64, error)
+type Database interface {
+	CreateUser(name string, email string, age int, subject string, tableName string) (int64, error)
+	GetUserDetail(tableName string, id int64) (types.User, error)
 }
