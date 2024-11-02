@@ -92,7 +92,24 @@ func (db *Sqlite) CreateUser(name string, email string, age int, subject string,
 
 func (db *Sqlite) GetUserDetail(tableName string, id int64) (types.User, error) {
 
-	stud := types.User{}
-	return stud, nil
+	queryStmt := fmt.Sprintf("SELECT * FROM %s WHERE ID = ? LIMIT 1 ", tableName)
+	query, err := db.Db.Prepare(queryStmt)
 
+	if err != nil {
+		return types.User{}, err
+	}
+
+	defer query.Close()
+	var user types.User
+
+	err = query.QueryRow(id).Scan(&user.Id, &user.Name, &user.Age, &user.Email, &user.Subject)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.User{}, fmt.Errorf("no student found with id: %d", id)
+		}
+		return types.User{}, fmt.Errorf("query error %w", err)
+	}
+
+	return user, nil
 }

@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 
 	Validator "github.com/Vasudev-2308/gostudy/intenal/http/validator"
@@ -19,23 +20,21 @@ func GetUser(database storage.Database, table string) http.HandlerFunc {
 	table = strings.ToUpper(table)
 	return func(response http.ResponseWriter, request *http.Request) {
 		id := request.PathValue("id")
-		slog.Info(id)
-		if table == "STUDENT" {
-			slog.Info("Getting a Student")
-			user, err := database.GetUserDetail(table, 2)
-			if err != nil {
-				slog.Info(err.Error())
-			}
-			fmt.Println(user)
+		intid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(err))
+			return
 		}
-		if table == "TEACHER" {
-			slog.Info("Getting a Student")
-			user, err := database.GetUserDetail(table, 2)
-			if err != nil {
-				slog.Info(err.Error())
-			}
-			fmt.Println(user)
+
+		slog.Info("Getting a User")
+		user, err := database.GetUserDetail(table, intid)
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusInternalServerError, response_util.GeneralError(err))
+			return
 		}
+
+		response_util.WriteToJson(response, http.StatusOK, user)
+
 	}
 }
 
