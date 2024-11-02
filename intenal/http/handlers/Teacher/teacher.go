@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
 	Validator "github.com/Vasudev-2308/gostudy/intenal/http/validator"
+	"github.com/Vasudev-2308/gostudy/intenal/storage"
 	"github.com/Vasudev-2308/gostudy/intenal/types"
 	response_util "github.com/Vasudev-2308/gostudy/intenal/utils/response_util"
 )
@@ -18,7 +20,7 @@ func GetTeacher() http.HandlerFunc {
 	}
 }
 
-func CreateTeacher() http.HandlerFunc {
+func AddTeacher(database storage.Database) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		var newTeacher types.Teacher
 		error := json.NewDecoder(request.Body).Decode(&newTeacher)
@@ -34,6 +36,18 @@ func CreateTeacher() http.HandlerFunc {
 
 		Validator.TeacherValidator(&newTeacher, response)
 
-		response_util.WriteToJson(response, http.StatusCreated, map[string]string{"success": "ok"})
+		id, err := database.CreateTeacher(
+			newTeacher.Name,
+			newTeacher.Email,
+			newTeacher.Age,
+			newTeacher.Subject)
+
+		slog.Info("User Created", slog.String("id : %s", string(id)))
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusInternalServerError, err)
+			return
+		}
+
+		response_util.WriteToJson(response, http.StatusCreated, map[string]int64{"id": id})
 	}
 }

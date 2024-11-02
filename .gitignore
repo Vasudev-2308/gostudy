@@ -28,8 +28,8 @@ go.work.sum
 .env
 
 # Database Folder 
-storage
+/storage
 
 #config folder
-/config/local.yaml 
+/config
 

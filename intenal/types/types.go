@@ -1,14 +1,14 @@
 package types
 
 type Student struct {
-	Id    int
+	Id    int64
 	Name  string `validate:"required"`
 	Email string `validate:"required"`
 	Age   int    `validate:"required"`
 }
 
 type Teacher struct {
-	Id      int
+	Id      int64
 	Name    string `validate:"required"`
 	Email   string `validate:"required"`
 	Age     int    `validate:"required"`

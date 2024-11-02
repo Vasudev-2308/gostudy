@@ -9,8 +9,9 @@ import (
 	"syscall"
 
 	"github.com/Vasudev-2308/gostudy/intenal/config"
-	"github.com/Vasudev-2308/gostudy/intenal/http/handlers/Teacher"
 	Student "github.com/Vasudev-2308/gostudy/intenal/http/handlers/Student"
+	"github.com/Vasudev-2308/gostudy/intenal/http/handlers/Teacher"
+	"github.com/Vasudev-2308/gostudy/intenal/storage/sqlite"
 )
 
 func startServer(server *http.Server, doneChannel chan os.Signal) {
@@ -40,18 +41,25 @@ func startServer(server *http.Server, doneChannel chan os.Signal) {
 
 func startRouter(cfg config.Config) {
 	// Setup Router
+	// Setup Database
+	storage, err := sqlite.New(&cfg)
+
+	if err != nil {
+		slog.Info("Not able to Initiate DB", slog.String("%s", err.Error()))
+	}
+	slog.Info("Storage Initated", slog.String("env", cfg.StoragePath))
 	router := http.NewServeMux()
 	router.HandleFunc("GET /api/students", Student.GetStudents())
-	router.HandleFunc("POST /api/create", Student.CreateStudent())
+	router.HandleFunc("POST /api/create-student", Student.AddStudent(storage))
 	router.HandleFunc("GET /api/teachers", Teacher.GetTeacher())
-	router.HandleFunc("POST /api/create-teachers", Teacher.CreateTeacher())
-	
+	router.HandleFunc("POST /api/create-teachers", Teacher.AddTeacher(storage))
+
 	slog.Info("Server Listening on %s 🔥", slog.String("Address: ", cfg.HttpServer.Addr))
 	server := http.Server{
 		Addr:    cfg.Addr,
 		Handler: router,
 	}
-	
+
 	doneChannel := make(chan os.Signal, 1)
 	startServer(&server, doneChannel)
 }
@@ -59,10 +67,7 @@ func startRouter(cfg config.Config) {
 func main() {
 	// Load Config
 	cfg := config.MustLoad()
-
 	// Starting Router and Server {startServer is embedded inside startROuter}
 	startRouter(*cfg)
-
-	// Setup Database
 
 }
