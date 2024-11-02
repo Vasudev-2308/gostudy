@@ -20,9 +20,14 @@
 # Go workspace file
 go.work
 go.work.sum
+*.sum
 
 # env file
 .env
 
 # Database Folder 
 storage
+
+#config folder
+/config
+
