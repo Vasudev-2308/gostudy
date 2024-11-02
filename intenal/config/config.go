@@ -9,7 +9,7 @@ import (
 )
 
 type HttpServer struct {
-	Addr string
+	Addr string `yaml:"address" env-required:"true"`
 }
 type Config struct {
 	//go get -u github.com/ilyakaznacheev/cleanenv
@@ -19,16 +19,16 @@ type Config struct {
 }
 
 func MustLoad() *Config {
-	var configPath string
-
-	configPath = os.Getenv("CONFIG_PATH")
+	var configPath string = "config/local.yaml"
 	if configPath == "" {
-		flags := flag.String("config", "", "Path to COnfig File")
-		flag.Parse()
-		configPath = *flags
-
+		configPath = os.Getenv("CONFIG_PATH")
 		if configPath == "" {
-			log.Fatal("Config Path is not set")
+			flags := flag.String("config", "", "Path to Config File")
+			flag.Parse()
+			configPath = *flags
+			if configPath == "" {
+				log.Fatal("Config Path is not set")
+			}
 		}
 	}
 
