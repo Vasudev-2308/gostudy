@@ -13,6 +13,11 @@ import (
 	"github.com/Vasudev-2308/gostudy/intenal/storage/sqlite"
 )
 
+const (
+	StudentDB = "students"
+	TeacherDB = "teachers"
+)
+
 func startServer(server *http.Server, doneChannel chan os.Signal) {
 	// Setup server and Gracefully Chose it Instead of Abruptly Shutting it Down
 	go func() {
@@ -50,10 +55,10 @@ func startRouter(cfg config.Config) {
 
 	slog.Info("Storage Initated", slog.String("env", cfg.StoragePath))
 	router := http.NewServeMux()
-	router.HandleFunc("GET /api/student/{id}", User.GetUser(student, "students"))
-	router.HandleFunc("POST /api/create-student", User.AddUser(student, "students"))
-	router.HandleFunc("GET /api/teachers", User.GetUser(teacher, "teachers"))
-	router.HandleFunc("POST /api/create-teachers", User.AddUser(teacher, "teachers"))
+	router.HandleFunc("GET /api/student/{id}", User.GetUser(student, StudentDB))
+	router.HandleFunc("POST /api/create-student", User.AddUser(student, StudentDB))
+	router.HandleFunc("GET /api/teachers", User.GetUser(teacher, TeacherDB))
+	router.HandleFunc("POST /api/create-teachers", User.AddUser(teacher, TeacherDB))
 
 	server := http.Server{
 		Addr:    cfg.Addr,
