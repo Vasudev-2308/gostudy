@@ -18,7 +18,7 @@ type Config struct {
 	HttpServer  `yaml:"http_server"`
 }
 
-func MustLoad() *Config {
+func Load() *Config {
 	var configPath string = "config/local.yaml"
 	if configPath == "" {
 		configPath = os.Getenv("CONFIG_PATH")

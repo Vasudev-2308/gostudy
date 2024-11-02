@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Vasudev-2308/gostudy/intenal/config"
-	"github.com/Vasudev-2308/gostudy/intenal/types"
+	"github.com/Vasudev-2308/gostudy/intenal/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -90,26 +90,52 @@ func (db *Sqlite) CreateUser(name string, email string, age int, subject string,
 	return id, nil
 }
 
-func (db *Sqlite) GetUserDetail(tableName string, id int64) (types.User, error) {
+func (db *Sqlite) GetUserDetail(tableName string, id int64) (models.User, error) {
 
 	queryStmt := fmt.Sprintf("SELECT * FROM %s WHERE ID = ? LIMIT 1 ", tableName)
 	query, err := db.Db.Prepare(queryStmt)
 
 	if err != nil {
-		return types.User{}, err
+		return models.User{}, err
 	}
 
 	defer query.Close()
-	var user types.User
+	var user models.User
 
 	err = query.QueryRow(id).Scan(&user.Id, &user.Name, &user.Age, &user.Email, &user.Subject)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return types.User{}, fmt.Errorf("no student found with id: %d", id)
+			return models.User{}, fmt.Errorf("no student found with id: %d", id)
 		}
-		return types.User{}, fmt.Errorf("query error %w", err)
+		return models.User{}, fmt.Errorf("query error %w", err)
 	}
 
 	return user, nil
+}
+
+func (db *Sqlite) GetAllUsers(tableName string) ([]models.User, error) {
+
+	queryStmt := fmt.Sprintf("SELECT ID, NAME, AGE, EMAIL, SUBJECT FROM %s ", tableName)
+	query, err := db.Db.Prepare(queryStmt)
+
+	if err != nil {
+		return nil, err
+	}
+	defer query.Close()
+
+	rows, err := query.Query()
+	if err != nil {
+		return nil, err
+	}
+	var students []models.User
+	for rows.Next() {
+		var student models.User
+		err := rows.Scan(&student.Id, &student.Name, &student.Age, &student.Email, &student.Subject)
+		if err != nil {
+			return nil, err
+		}
+		students = append(students, student)
+	}
+	return students, nil
 }

@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	Validator "github.com/Vasudev-2308/gostudy/intenal/http/validator"
+	"github.com/Vasudev-2308/gostudy/intenal/models"
 	"github.com/Vasudev-2308/gostudy/intenal/storage"
-	"github.com/Vasudev-2308/gostudy/intenal/types"
 	response_util "github.com/Vasudev-2308/gostudy/intenal/utils/response_util"
 )
 
@@ -38,10 +38,22 @@ func GetUser(database storage.Database, table string) http.HandlerFunc {
 	}
 }
 
+func GetUsers(database storage.Database, tableName string) http.HandlerFunc {
+	tableName = strings.ToUpper(tableName)
+	return func(response http.ResponseWriter, request *http.Request) {
+		users, error := database.GetAllUsers(tableName)
+		if error != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(error))
+			return
+		}
+		response_util.WriteToJson(response, http.StatusOK, users)
+	}
+}
+
 func AddUser(database storage.Database, tableName string) http.HandlerFunc {
 	tableName = strings.ToUpper(tableName)
 	return func(response http.ResponseWriter, request *http.Request) {
-		var newStudent types.User
+		var newStudent models.User
 
 		error := json.NewDecoder(request.Body).Decode(&newStudent)
 
