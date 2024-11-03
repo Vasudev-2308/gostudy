@@ -3,12 +3,13 @@ package router
 import (
 	"net/http"
 	"os"
+
 	"github.com/Vasudev-2308/gostudy/intenal/config"
 )
 
 const (
-	StudentDB = "students"
-	TeacherDB = "teachers"
+	StudentDB = "STUDENTS"
+	TeacherDB = "TEACHERS"
 )
 
 func StartRouter(cfg config.Config) {

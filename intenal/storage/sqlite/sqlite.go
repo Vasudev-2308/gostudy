@@ -13,47 +13,20 @@ type Sqlite struct {
 	Db *sql.DB
 }
 
-func NewStudent(cfg *config.Config) (*Sqlite, error) {
+func NewDataBase(cfg *config.Config, tableName string) (*Sqlite, error) {
 	dbInstance, err := sql.Open("sqlite3", cfg.StoragePath)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = dbInstance.Exec(`
-		CREATE TABLE IF NOT EXISTS STUDENTS (
-			ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-			NAME TEXT, 
-			AGE INTEGER, 
-			EMAIL TEXT, 
-			SUBJECT TEXT
-		)
-	`)
+	query := fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+	ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+	NAME TEXT, 
+	AGE INTEGER, 
+	EMAIL TEXT, 
+	SUBJECT TEXT ) `, tableName)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &Sqlite{
-		Db: dbInstance,
-	}, nil
-
-}
-
-func NewTeacher(cfg *config.Config) (*Sqlite, error) {
-	dbInstance, err := sql.Open("sqlite3", cfg.StoragePath)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = dbInstance.Exec(`
-		CREATE TABLE IF NOT EXISTS TEACHERS (
-			ID INTEGER PRIMARY KEY AUTOINCREMENT,
-			NAME TEXT,
-			AGE INTEGER,
-			EMAIL TEXT,
-			SUBJECT TEXT
-		)
-	`)
+	_, err = dbInstance.Exec(query)
 
 	if err != nil {
 		return nil, err
@@ -138,4 +111,29 @@ func (db *Sqlite) GetAllUsers(tableName string) ([]models.User, error) {
 		students = append(students, student)
 	}
 	return students, nil
+}
+
+func (db *Sqlite) UpdateUser(name, email, subject, tableName string, age int, id int64) (models.User, error) {
+	// Create the SQL query with placeholders
+	query := fmt.Sprintf("UPDATE %s SET NAME = ?, AGE = ?, EMAIL = ?, SUBJECT = ? WHERE ID = ?", tableName)
+	fmt.Println("Executing query:", query)
+
+	// Execute the query with the provided parameters
+	_, err := db.Db.Exec(query, name, age, email, subject, id)
+	if err != nil {
+		fmt.Println("Error executing update:", err)
+		return models.User{}, err
+	}
+
+	// Fetch the updated user details
+	user, err := db.GetUserDetail(tableName, id)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
+}
+
+func (db *Sqlite) DeleteUser(tableName string, id int64) (bool, error) {
+	return true, nil
 }

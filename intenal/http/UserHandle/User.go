@@ -38,6 +38,46 @@ func GetUser(database storage.Database, table string) http.HandlerFunc {
 	}
 }
 
+func UpdateUser(database storage.Database, tableName string) http.HandlerFunc {
+	tableName = strings.ToUpper(tableName)
+	return func(response http.ResponseWriter, request *http.Request) {
+
+		id := request.PathValue("id")
+		intid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(err))
+			return
+		}
+		var student models.User
+		error := json.NewDecoder(request.Body).Decode(&student)
+		if errors.Is(error, io.EOF) {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(fmt.Errorf("empty body")))
+			return
+		}
+
+		if error != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(error))
+			return
+		}
+		Validator.UserValidator(&student, response)
+
+		user, err := database.UpdateUser(
+			student.Name,
+			student.Email,
+			student.Subject,
+			tableName,
+			student.Age,
+			intid)
+
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(err))
+			return
+		}
+
+		response_util.WriteToJson(response, http.StatusOK, user)
+	}
+}
+
 func GetUsers(database storage.Database, tableName string) http.HandlerFunc {
 	tableName = strings.ToUpper(tableName)
 	return func(response http.ResponseWriter, request *http.Request) {

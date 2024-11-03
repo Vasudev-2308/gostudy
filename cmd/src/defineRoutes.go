@@ -10,8 +10,8 @@ import (
 )
 
 func initRoutes(router *http.ServeMux, cfg config.Config) {
-	student, err1 := sqlite.NewStudent(&cfg)
-	teacher, err2 := sqlite.NewTeacher(&cfg)
+	student, err1 := sqlite.NewDataBase(&cfg, StudentDB)
+	teacher, err2 := sqlite.NewDataBase(&cfg, TeacherDB)
 
 	if err1 != nil || err2 != nil {
 		slog.Info("Not able to Initiate DB", slog.String("%s", err1.Error()), slog.String("%s", err2.Error()))
@@ -21,6 +21,7 @@ func initRoutes(router *http.ServeMux, cfg config.Config) {
 	router.HandleFunc("GET /api/student/{id}", User.GetUser(student, StudentDB))
 	router.HandleFunc("POST /api/create-student", User.AddUser(student, StudentDB))
 	router.HandleFunc("GET /api/students", User.GetUsers(student, StudentDB))
+	router.HandleFunc("PUT /api/update-student/{id}", User.UpdateUser(student, StudentDB))
 
 	router.HandleFunc("GET /api/teacher/{id}", User.GetUser(teacher, TeacherDB))
 	router.HandleFunc("POST /api/create-teachers", User.AddUser(teacher, TeacherDB))
