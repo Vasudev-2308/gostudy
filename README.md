@@ -35,21 +35,31 @@ The cmd folder contains the Entry Point to project. The `main.go` file contains 
     <h5>Supported API Calls:</h5>
 
 For Student:
-
+<br>
 `GET /api/student/id` : Gets Student by ID
+<br>
 `POST /api/create-student` : Provides ability to create student
+<br>
 `GET /api/students`: Gets all Students as a List
+<br>
 `PUT /api/update-student/id`: Updates Students based on ID
+<br>
 `DELETE /api/delete-student/id` : Deletes Student based on ID
 
   <br>
 
 Similarly for Teachers:
+<br>
 `GET /api/teacher/id` : Gets Teacher by ID
+<br>
 `POST /api/create-teacher` : Provides ability to create Teacher
+<br>
 `GET /api/teachers`: Gets all Teachers as a List
+<br>
 `PUT /api/update-teacher/id`: Updates Teachers based on ID
+<br>
 `DELETE /api/delete-teacher/id` : Deletes Teacher based on ID
+<br>
 
 <h4> config folder:</h4>
 
