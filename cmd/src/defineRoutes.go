@@ -22,8 +22,11 @@ func initRoutes(router *http.ServeMux, cfg config.Config) {
 	router.HandleFunc("POST /api/create-student", User.AddUser(student, StudentDB))
 	router.HandleFunc("GET /api/students", User.GetUsers(student, StudentDB))
 	router.HandleFunc("PUT /api/update-student/{id}", User.UpdateUser(student, StudentDB))
+	router.HandleFunc("DELETE /api/delete-student/{id}", User.DeleteUser(student, StudentDB))
 
 	router.HandleFunc("GET /api/teacher/{id}", User.GetUser(teacher, TeacherDB))
 	router.HandleFunc("POST /api/create-teachers", User.AddUser(teacher, TeacherDB))
 	router.HandleFunc("GET /api/teachers", User.GetUsers(teacher, TeacherDB))
+	router.HandleFunc("PUT /api/update-teacher/{id}", User.UpdateUser(teacher, TeacherDB))
+	router.HandleFunc("DELETE /api/delete-teacher/{id}", User.DeleteUser(teacher, TeacherDB))
 }

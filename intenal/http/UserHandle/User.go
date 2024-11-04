@@ -124,3 +124,26 @@ func AddUser(database storage.Database, tableName string) http.HandlerFunc {
 		response_util.WriteToJson(response, http.StatusCreated, map[string]int64{"id": id})
 	}
 }
+
+func DeleteUser(database storage.Database, tableName string) http.HandlerFunc {
+	tableName = strings.ToUpper(tableName)
+	return func(response http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
+		intid, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusBadRequest, response_util.GeneralError(err))
+			return
+		}
+
+		slog.Info("Deleting a User")
+		status, err := database.DeleteUser(tableName, intid)
+		if err != nil {
+			response_util.WriteToJson(response, http.StatusInternalServerError, response_util.GeneralError(err))
+			return
+		}
+
+		response_util.WriteToJson(response, http.StatusOK, map[string]bool{"status": status})
+
+	}
+
+}

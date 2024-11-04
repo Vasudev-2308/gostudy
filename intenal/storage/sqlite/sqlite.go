@@ -135,5 +135,26 @@ func (db *Sqlite) UpdateUser(name, email, subject, tableName string, age int, id
 }
 
 func (db *Sqlite) DeleteUser(tableName string, id int64) (bool, error) {
+
+	query := fmt.Sprintf("DELETE FROM %s WHERE ID = ?", tableName)
+	fmt.Println("Query :", query)
+
+	rslt, err := db.Db.Exec(query, id)
+
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := rslt.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		fmt.Println("Error, No Rows Affected")
+		return false, nil
+	}
+
 	return true, nil
+
 }
